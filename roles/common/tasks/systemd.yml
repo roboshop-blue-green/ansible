@@ -1,0 +1,18 @@
+- name: Setup {{COMPONENT}} SystemD Config File
+  ansible.builtin.template:
+    src: systemd.service
+    dest: /etc/systemd/system/{{COMPONENT}}.service
+
+- name: Start {{COMPONENT}} service
+  ansible.builtin.systemd:
+    name: "{{COMPONENT}}"
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+
+- name: Stop {{COMPONENT}} service for Immutable tuning
+  when: strategy == "immutable"
+  ansible.builtin.systemd:
+    name: "{{COMPONENT}}"
+    state: stopped
+

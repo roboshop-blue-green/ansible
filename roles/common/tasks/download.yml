@@ -1,0 +1,47 @@
+- name: Add Application User
+  ansible.builtin.user:
+    name: roboshop
+    state: present
+  register: appUser
+
+### We are moving towards downloading the content from git to nexus, this code becomes invalid
+#- name: Download {{COMPONENT}} from Git repo and Extract it
+#  ansible.builtin.unarchive:
+#    src: https://github.com/roboshop-devops-project/{{COMPONENT}}/archive/main.zip
+#    dest: /tmp
+#    remote_src: yes
+#
+#- name: Clean old app code
+#  ansible.builtin.file:
+#    path: /home/roboshop/{{COMPONENT}}
+#    state: absent
+#
+#- name: Copy App code
+#  ansible.builtin.copy:
+#    src: /tmp/{{COMPONENT}}-main/
+#    dest: /home/roboshop/{{COMPONENT}}/
+#    remote_src: yes
+#  become_user: roboshop
+#
+#
+#
+## Download from Nexus
+
+- name: Clean old app code
+  ansible.builtin.file:
+    path: /home/roboshop/{{COMPONENT}}
+    state: absent
+
+- name: Create App Directory
+  ansible.builtin.file:
+    path: /home/roboshop/{{COMPONENT}}
+    state: directory
+  become_user: roboshop
+
+- name: Download {{COMPONENT}} from Nexus and extract it
+  ansible.builtin.unarchive:
+    src: http://172.31.9.227:8081/repository/{{COMPONENT}}/{{COMPONENT}}-v{{APP_VERSION}}.zip
+    dest: /home/roboshop/{{COMPONENT}}
+    remote_src: yes
+  become_user: roboshop
+

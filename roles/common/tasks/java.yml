@@ -1,0 +1,31 @@
+- name: Install Maven
+  ansible.builtin.yum:
+    name: maven
+    state: installed
+
+- name: Setup App User and App Code
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: download
+
+
+## // This is commented after we moved from downloading the git repo to Nexus
+
+#- name: Install {{COMPONENT}} Dependencies
+#  ansible.builtin.shell: mvn clean package && mv target/shipping-1.0.jar shipping.jar
+#  args:
+#    chdir: /home/roboshop/{{COMPONENT}}
+#  become_user: roboshop
+
+- name: Stop {{COMPONENT}} service
+  ansible.builtin.systemd:
+    name: "{{COMPONENT}}"
+    state: stopped
+  ignore_errors: yes
+
+- name: Configure SystemD for {{COMPONENT}}
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: systemd
+
+
